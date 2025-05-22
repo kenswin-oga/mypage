@@ -1,0 +1,17 @@
+<h2>📘 最新の記事</h2>
+<ul>
+  <% @recent_posts.each do |post| %>
+    <li>
+      <a href="<%= post_path(post) %>"><%= post.title %></a> - <%= post.created_at.to_date %>
+    </li>
+  <% end %>
+</ul>
+
+<h2>🛠️ 最近つくったもの</h2>
+<ul>
+  <% @recent_projects.each do |project| %>
+    <li>
+      <a href="<%= project_path(project) %>"><%= project.title %></a>
+    </li>
+  <% end %>
+</ul>

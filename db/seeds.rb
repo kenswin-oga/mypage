@@ -7,3 +7,11 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+5.times do |i|
+    Post.create!(title: "サンプル記事 #{i + 1}", body: "本文です #{i + 1}")
+end
+
+3.times do |i|
+    Project.create!(title: "作品 #{i + 1}", description: "プロジェクトの説明 #{i + 1}")
+end
+  
