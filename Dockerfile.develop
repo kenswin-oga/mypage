@@ -4,6 +4,12 @@ FROM ruby:3.4
 # 作業ディレクトリを指定。なんでも大丈夫。
 WORKDIR /app
 
+# install nodejs(LTS)
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs
+
+# install yarn
+RUN npm install --global yarn
+
 # ホストマシンのファイルをコンテナ内の作業ディレクトリにコピーする。
 COPY Gemfile Gemfile.lock /app/
 
