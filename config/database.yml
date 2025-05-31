@@ -13,3 +13,4 @@ development:
 test:
   <<: *default
   database: sample_app_test
+  host: localhost
