@@ -14,4 +14,3 @@ end
 3.times do |i|
     Project.create!(title: "作品 #{i + 1}", description: "プロジェクトの説明 #{i + 1}")
 end
-  

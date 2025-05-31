@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   # root "posts#index"
   root to: "home#index"
 
-  resources :posts, only: [:index, :show]
-  resources :projects, only: [:index, :show]
-
+  resources :posts, only: [ :index, :show ]
+  resources :projects, only: [ :index, :show ]
 end
