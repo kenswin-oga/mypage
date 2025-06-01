@@ -26,277 +26,6 @@
     mod
   ));
 
-  // node_modules/scheduler/cjs/scheduler.development.js
-  var require_scheduler_development = __commonJS({
-    "node_modules/scheduler/cjs/scheduler.development.js"(exports) {
-      "use strict";
-      (function() {
-        function performWorkUntilDeadline() {
-          needsPaint = false;
-          if (isMessageLoopRunning) {
-            var currentTime = exports.unstable_now();
-            startTime = currentTime;
-            var hasMoreWork = true;
-            try {
-              a: {
-                isHostCallbackScheduled = false;
-                isHostTimeoutScheduled && (isHostTimeoutScheduled = false, localClearTimeout(taskTimeoutID), taskTimeoutID = -1);
-                isPerformingWork = true;
-                var previousPriorityLevel = currentPriorityLevel;
-                try {
-                  b: {
-                    advanceTimers(currentTime);
-                    for (currentTask = peek(taskQueue); null !== currentTask && !(currentTask.expirationTime > currentTime && shouldYieldToHost()); ) {
-                      var callback = currentTask.callback;
-                      if ("function" === typeof callback) {
-                        currentTask.callback = null;
-                        currentPriorityLevel = currentTask.priorityLevel;
-                        var continuationCallback = callback(
-                          currentTask.expirationTime <= currentTime
-                        );
-                        currentTime = exports.unstable_now();
-                        if ("function" === typeof continuationCallback) {
-                          currentTask.callback = continuationCallback;
-                          advanceTimers(currentTime);
-                          hasMoreWork = true;
-                          break b;
-                        }
-                        currentTask === peek(taskQueue) && pop(taskQueue);
-                        advanceTimers(currentTime);
-                      } else pop(taskQueue);
-                      currentTask = peek(taskQueue);
-                    }
-                    if (null !== currentTask) hasMoreWork = true;
-                    else {
-                      var firstTimer = peek(timerQueue);
-                      null !== firstTimer && requestHostTimeout(
-                        handleTimeout,
-                        firstTimer.startTime - currentTime
-                      );
-                      hasMoreWork = false;
-                    }
-                  }
-                  break a;
-                } finally {
-                  currentTask = null, currentPriorityLevel = previousPriorityLevel, isPerformingWork = false;
-                }
-                hasMoreWork = void 0;
-              }
-            } finally {
-              hasMoreWork ? schedulePerformWorkUntilDeadline() : isMessageLoopRunning = false;
-            }
-          }
-        }
-        function push(heap, node) {
-          var index = heap.length;
-          heap.push(node);
-          a: for (; 0 < index; ) {
-            var parentIndex = index - 1 >>> 1, parent = heap[parentIndex];
-            if (0 < compare(parent, node))
-              heap[parentIndex] = node, heap[index] = parent, index = parentIndex;
-            else break a;
-          }
-        }
-        function peek(heap) {
-          return 0 === heap.length ? null : heap[0];
-        }
-        function pop(heap) {
-          if (0 === heap.length) return null;
-          var first = heap[0], last = heap.pop();
-          if (last !== first) {
-            heap[0] = last;
-            a: for (var index = 0, length = heap.length, halfLength = length >>> 1; index < halfLength; ) {
-              var leftIndex = 2 * (index + 1) - 1, left = heap[leftIndex], rightIndex = leftIndex + 1, right = heap[rightIndex];
-              if (0 > compare(left, last))
-                rightIndex < length && 0 > compare(right, left) ? (heap[index] = right, heap[rightIndex] = last, index = rightIndex) : (heap[index] = left, heap[leftIndex] = last, index = leftIndex);
-              else if (rightIndex < length && 0 > compare(right, last))
-                heap[index] = right, heap[rightIndex] = last, index = rightIndex;
-              else break a;
-            }
-          }
-          return first;
-        }
-        function compare(a, b) {
-          var diff = a.sortIndex - b.sortIndex;
-          return 0 !== diff ? diff : a.id - b.id;
-        }
-        function advanceTimers(currentTime) {
-          for (var timer = peek(timerQueue); null !== timer; ) {
-            if (null === timer.callback) pop(timerQueue);
-            else if (timer.startTime <= currentTime)
-              pop(timerQueue), timer.sortIndex = timer.expirationTime, push(taskQueue, timer);
-            else break;
-            timer = peek(timerQueue);
-          }
-        }
-        function handleTimeout(currentTime) {
-          isHostTimeoutScheduled = false;
-          advanceTimers(currentTime);
-          if (!isHostCallbackScheduled)
-            if (null !== peek(taskQueue))
-              isHostCallbackScheduled = true, isMessageLoopRunning || (isMessageLoopRunning = true, schedulePerformWorkUntilDeadline());
-            else {
-              var firstTimer = peek(timerQueue);
-              null !== firstTimer && requestHostTimeout(
-                handleTimeout,
-                firstTimer.startTime - currentTime
-              );
-            }
-        }
-        function shouldYieldToHost() {
-          return needsPaint ? true : exports.unstable_now() - startTime < frameInterval ? false : true;
-        }
-        function requestHostTimeout(callback, ms) {
-          taskTimeoutID = localSetTimeout(function() {
-            callback(exports.unstable_now());
-          }, ms);
-        }
-        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        exports.unstable_now = void 0;
-        if ("object" === typeof performance && "function" === typeof performance.now) {
-          var localPerformance = performance;
-          exports.unstable_now = function() {
-            return localPerformance.now();
-          };
-        } else {
-          var localDate = Date, initialTime = localDate.now();
-          exports.unstable_now = function() {
-            return localDate.now() - initialTime;
-          };
-        }
-        var taskQueue = [], timerQueue = [], taskIdCounter = 1, currentTask = null, currentPriorityLevel = 3, isPerformingWork = false, isHostCallbackScheduled = false, isHostTimeoutScheduled = false, needsPaint = false, localSetTimeout = "function" === typeof setTimeout ? setTimeout : null, localClearTimeout = "function" === typeof clearTimeout ? clearTimeout : null, localSetImmediate = "undefined" !== typeof setImmediate ? setImmediate : null, isMessageLoopRunning = false, taskTimeoutID = -1, frameInterval = 5, startTime = -1;
-        if ("function" === typeof localSetImmediate)
-          var schedulePerformWorkUntilDeadline = function() {
-            localSetImmediate(performWorkUntilDeadline);
-          };
-        else if ("undefined" !== typeof MessageChannel) {
-          var channel = new MessageChannel(), port = channel.port2;
-          channel.port1.onmessage = performWorkUntilDeadline;
-          schedulePerformWorkUntilDeadline = function() {
-            port.postMessage(null);
-          };
-        } else
-          schedulePerformWorkUntilDeadline = function() {
-            localSetTimeout(performWorkUntilDeadline, 0);
-          };
-        exports.unstable_IdlePriority = 5;
-        exports.unstable_ImmediatePriority = 1;
-        exports.unstable_LowPriority = 4;
-        exports.unstable_NormalPriority = 3;
-        exports.unstable_Profiling = null;
-        exports.unstable_UserBlockingPriority = 2;
-        exports.unstable_cancelCallback = function(task) {
-          task.callback = null;
-        };
-        exports.unstable_forceFrameRate = function(fps) {
-          0 > fps || 125 < fps ? console.error(
-            "forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"
-          ) : frameInterval = 0 < fps ? Math.floor(1e3 / fps) : 5;
-        };
-        exports.unstable_getCurrentPriorityLevel = function() {
-          return currentPriorityLevel;
-        };
-        exports.unstable_next = function(eventHandler) {
-          switch (currentPriorityLevel) {
-            case 1:
-            case 2:
-            case 3:
-              var priorityLevel = 3;
-              break;
-            default:
-              priorityLevel = currentPriorityLevel;
-          }
-          var previousPriorityLevel = currentPriorityLevel;
-          currentPriorityLevel = priorityLevel;
-          try {
-            return eventHandler();
-          } finally {
-            currentPriorityLevel = previousPriorityLevel;
-          }
-        };
-        exports.unstable_requestPaint = function() {
-          needsPaint = true;
-        };
-        exports.unstable_runWithPriority = function(priorityLevel, eventHandler) {
-          switch (priorityLevel) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-              break;
-            default:
-              priorityLevel = 3;
-          }
-          var previousPriorityLevel = currentPriorityLevel;
-          currentPriorityLevel = priorityLevel;
-          try {
-            return eventHandler();
-          } finally {
-            currentPriorityLevel = previousPriorityLevel;
-          }
-        };
-        exports.unstable_scheduleCallback = function(priorityLevel, callback, options) {
-          var currentTime = exports.unstable_now();
-          "object" === typeof options && null !== options ? (options = options.delay, options = "number" === typeof options && 0 < options ? currentTime + options : currentTime) : options = currentTime;
-          switch (priorityLevel) {
-            case 1:
-              var timeout = -1;
-              break;
-            case 2:
-              timeout = 250;
-              break;
-            case 5:
-              timeout = 1073741823;
-              break;
-            case 4:
-              timeout = 1e4;
-              break;
-            default:
-              timeout = 5e3;
-          }
-          timeout = options + timeout;
-          priorityLevel = {
-            id: taskIdCounter++,
-            callback,
-            priorityLevel,
-            startTime: options,
-            expirationTime: timeout,
-            sortIndex: -1
-          };
-          options > currentTime ? (priorityLevel.sortIndex = options, push(timerQueue, priorityLevel), null === peek(taskQueue) && priorityLevel === peek(timerQueue) && (isHostTimeoutScheduled ? (localClearTimeout(taskTimeoutID), taskTimeoutID = -1) : isHostTimeoutScheduled = true, requestHostTimeout(handleTimeout, options - currentTime))) : (priorityLevel.sortIndex = timeout, push(taskQueue, priorityLevel), isHostCallbackScheduled || isPerformingWork || (isHostCallbackScheduled = true, isMessageLoopRunning || (isMessageLoopRunning = true, schedulePerformWorkUntilDeadline())));
-          return priorityLevel;
-        };
-        exports.unstable_shouldYield = shouldYieldToHost;
-        exports.unstable_wrapCallback = function(callback) {
-          var parentPriorityLevel = currentPriorityLevel;
-          return function() {
-            var previousPriorityLevel = currentPriorityLevel;
-            currentPriorityLevel = parentPriorityLevel;
-            try {
-              return callback.apply(this, arguments);
-            } finally {
-              currentPriorityLevel = previousPriorityLevel;
-            }
-          };
-        };
-        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
-      })();
-    }
-  });
-
-  // node_modules/scheduler/index.js
-  var require_scheduler = __commonJS({
-    "node_modules/scheduler/index.js"(exports, module) {
-      "use strict";
-      if (false) {
-        module.exports = null;
-      } else {
-        module.exports = require_scheduler_development();
-      }
-    }
-  });
-
   // node_modules/react/cjs/react.development.js
   var require_react_development = __commonJS({
     "node_modules/react/cjs/react.development.js"(exports, module) {
@@ -1249,6 +978,277 @@
     }
   });
 
+  // node_modules/scheduler/cjs/scheduler.development.js
+  var require_scheduler_development = __commonJS({
+    "node_modules/scheduler/cjs/scheduler.development.js"(exports) {
+      "use strict";
+      (function() {
+        function performWorkUntilDeadline() {
+          needsPaint = false;
+          if (isMessageLoopRunning) {
+            var currentTime = exports.unstable_now();
+            startTime = currentTime;
+            var hasMoreWork = true;
+            try {
+              a: {
+                isHostCallbackScheduled = false;
+                isHostTimeoutScheduled && (isHostTimeoutScheduled = false, localClearTimeout(taskTimeoutID), taskTimeoutID = -1);
+                isPerformingWork = true;
+                var previousPriorityLevel = currentPriorityLevel;
+                try {
+                  b: {
+                    advanceTimers(currentTime);
+                    for (currentTask = peek(taskQueue); null !== currentTask && !(currentTask.expirationTime > currentTime && shouldYieldToHost()); ) {
+                      var callback = currentTask.callback;
+                      if ("function" === typeof callback) {
+                        currentTask.callback = null;
+                        currentPriorityLevel = currentTask.priorityLevel;
+                        var continuationCallback = callback(
+                          currentTask.expirationTime <= currentTime
+                        );
+                        currentTime = exports.unstable_now();
+                        if ("function" === typeof continuationCallback) {
+                          currentTask.callback = continuationCallback;
+                          advanceTimers(currentTime);
+                          hasMoreWork = true;
+                          break b;
+                        }
+                        currentTask === peek(taskQueue) && pop(taskQueue);
+                        advanceTimers(currentTime);
+                      } else pop(taskQueue);
+                      currentTask = peek(taskQueue);
+                    }
+                    if (null !== currentTask) hasMoreWork = true;
+                    else {
+                      var firstTimer = peek(timerQueue);
+                      null !== firstTimer && requestHostTimeout(
+                        handleTimeout,
+                        firstTimer.startTime - currentTime
+                      );
+                      hasMoreWork = false;
+                    }
+                  }
+                  break a;
+                } finally {
+                  currentTask = null, currentPriorityLevel = previousPriorityLevel, isPerformingWork = false;
+                }
+                hasMoreWork = void 0;
+              }
+            } finally {
+              hasMoreWork ? schedulePerformWorkUntilDeadline() : isMessageLoopRunning = false;
+            }
+          }
+        }
+        function push(heap, node) {
+          var index = heap.length;
+          heap.push(node);
+          a: for (; 0 < index; ) {
+            var parentIndex = index - 1 >>> 1, parent = heap[parentIndex];
+            if (0 < compare(parent, node))
+              heap[parentIndex] = node, heap[index] = parent, index = parentIndex;
+            else break a;
+          }
+        }
+        function peek(heap) {
+          return 0 === heap.length ? null : heap[0];
+        }
+        function pop(heap) {
+          if (0 === heap.length) return null;
+          var first = heap[0], last = heap.pop();
+          if (last !== first) {
+            heap[0] = last;
+            a: for (var index = 0, length = heap.length, halfLength = length >>> 1; index < halfLength; ) {
+              var leftIndex = 2 * (index + 1) - 1, left = heap[leftIndex], rightIndex = leftIndex + 1, right = heap[rightIndex];
+              if (0 > compare(left, last))
+                rightIndex < length && 0 > compare(right, left) ? (heap[index] = right, heap[rightIndex] = last, index = rightIndex) : (heap[index] = left, heap[leftIndex] = last, index = leftIndex);
+              else if (rightIndex < length && 0 > compare(right, last))
+                heap[index] = right, heap[rightIndex] = last, index = rightIndex;
+              else break a;
+            }
+          }
+          return first;
+        }
+        function compare(a, b) {
+          var diff = a.sortIndex - b.sortIndex;
+          return 0 !== diff ? diff : a.id - b.id;
+        }
+        function advanceTimers(currentTime) {
+          for (var timer = peek(timerQueue); null !== timer; ) {
+            if (null === timer.callback) pop(timerQueue);
+            else if (timer.startTime <= currentTime)
+              pop(timerQueue), timer.sortIndex = timer.expirationTime, push(taskQueue, timer);
+            else break;
+            timer = peek(timerQueue);
+          }
+        }
+        function handleTimeout(currentTime) {
+          isHostTimeoutScheduled = false;
+          advanceTimers(currentTime);
+          if (!isHostCallbackScheduled)
+            if (null !== peek(taskQueue))
+              isHostCallbackScheduled = true, isMessageLoopRunning || (isMessageLoopRunning = true, schedulePerformWorkUntilDeadline());
+            else {
+              var firstTimer = peek(timerQueue);
+              null !== firstTimer && requestHostTimeout(
+                handleTimeout,
+                firstTimer.startTime - currentTime
+              );
+            }
+        }
+        function shouldYieldToHost() {
+          return needsPaint ? true : exports.unstable_now() - startTime < frameInterval ? false : true;
+        }
+        function requestHostTimeout(callback, ms) {
+          taskTimeoutID = localSetTimeout(function() {
+            callback(exports.unstable_now());
+          }, ms);
+        }
+        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+        exports.unstable_now = void 0;
+        if ("object" === typeof performance && "function" === typeof performance.now) {
+          var localPerformance = performance;
+          exports.unstable_now = function() {
+            return localPerformance.now();
+          };
+        } else {
+          var localDate = Date, initialTime = localDate.now();
+          exports.unstable_now = function() {
+            return localDate.now() - initialTime;
+          };
+        }
+        var taskQueue = [], timerQueue = [], taskIdCounter = 1, currentTask = null, currentPriorityLevel = 3, isPerformingWork = false, isHostCallbackScheduled = false, isHostTimeoutScheduled = false, needsPaint = false, localSetTimeout = "function" === typeof setTimeout ? setTimeout : null, localClearTimeout = "function" === typeof clearTimeout ? clearTimeout : null, localSetImmediate = "undefined" !== typeof setImmediate ? setImmediate : null, isMessageLoopRunning = false, taskTimeoutID = -1, frameInterval = 5, startTime = -1;
+        if ("function" === typeof localSetImmediate)
+          var schedulePerformWorkUntilDeadline = function() {
+            localSetImmediate(performWorkUntilDeadline);
+          };
+        else if ("undefined" !== typeof MessageChannel) {
+          var channel = new MessageChannel(), port = channel.port2;
+          channel.port1.onmessage = performWorkUntilDeadline;
+          schedulePerformWorkUntilDeadline = function() {
+            port.postMessage(null);
+          };
+        } else
+          schedulePerformWorkUntilDeadline = function() {
+            localSetTimeout(performWorkUntilDeadline, 0);
+          };
+        exports.unstable_IdlePriority = 5;
+        exports.unstable_ImmediatePriority = 1;
+        exports.unstable_LowPriority = 4;
+        exports.unstable_NormalPriority = 3;
+        exports.unstable_Profiling = null;
+        exports.unstable_UserBlockingPriority = 2;
+        exports.unstable_cancelCallback = function(task) {
+          task.callback = null;
+        };
+        exports.unstable_forceFrameRate = function(fps) {
+          0 > fps || 125 < fps ? console.error(
+            "forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"
+          ) : frameInterval = 0 < fps ? Math.floor(1e3 / fps) : 5;
+        };
+        exports.unstable_getCurrentPriorityLevel = function() {
+          return currentPriorityLevel;
+        };
+        exports.unstable_next = function(eventHandler) {
+          switch (currentPriorityLevel) {
+            case 1:
+            case 2:
+            case 3:
+              var priorityLevel = 3;
+              break;
+            default:
+              priorityLevel = currentPriorityLevel;
+          }
+          var previousPriorityLevel = currentPriorityLevel;
+          currentPriorityLevel = priorityLevel;
+          try {
+            return eventHandler();
+          } finally {
+            currentPriorityLevel = previousPriorityLevel;
+          }
+        };
+        exports.unstable_requestPaint = function() {
+          needsPaint = true;
+        };
+        exports.unstable_runWithPriority = function(priorityLevel, eventHandler) {
+          switch (priorityLevel) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+              break;
+            default:
+              priorityLevel = 3;
+          }
+          var previousPriorityLevel = currentPriorityLevel;
+          currentPriorityLevel = priorityLevel;
+          try {
+            return eventHandler();
+          } finally {
+            currentPriorityLevel = previousPriorityLevel;
+          }
+        };
+        exports.unstable_scheduleCallback = function(priorityLevel, callback, options) {
+          var currentTime = exports.unstable_now();
+          "object" === typeof options && null !== options ? (options = options.delay, options = "number" === typeof options && 0 < options ? currentTime + options : currentTime) : options = currentTime;
+          switch (priorityLevel) {
+            case 1:
+              var timeout = -1;
+              break;
+            case 2:
+              timeout = 250;
+              break;
+            case 5:
+              timeout = 1073741823;
+              break;
+            case 4:
+              timeout = 1e4;
+              break;
+            default:
+              timeout = 5e3;
+          }
+          timeout = options + timeout;
+          priorityLevel = {
+            id: taskIdCounter++,
+            callback,
+            priorityLevel,
+            startTime: options,
+            expirationTime: timeout,
+            sortIndex: -1
+          };
+          options > currentTime ? (priorityLevel.sortIndex = options, push(timerQueue, priorityLevel), null === peek(taskQueue) && priorityLevel === peek(timerQueue) && (isHostTimeoutScheduled ? (localClearTimeout(taskTimeoutID), taskTimeoutID = -1) : isHostTimeoutScheduled = true, requestHostTimeout(handleTimeout, options - currentTime))) : (priorityLevel.sortIndex = timeout, push(taskQueue, priorityLevel), isHostCallbackScheduled || isPerformingWork || (isHostCallbackScheduled = true, isMessageLoopRunning || (isMessageLoopRunning = true, schedulePerformWorkUntilDeadline())));
+          return priorityLevel;
+        };
+        exports.unstable_shouldYield = shouldYieldToHost;
+        exports.unstable_wrapCallback = function(callback) {
+          var parentPriorityLevel = currentPriorityLevel;
+          return function() {
+            var previousPriorityLevel = currentPriorityLevel;
+            currentPriorityLevel = parentPriorityLevel;
+            try {
+              return callback.apply(this, arguments);
+            } finally {
+              currentPriorityLevel = previousPriorityLevel;
+            }
+          };
+        };
+        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+      })();
+    }
+  });
+
+  // node_modules/scheduler/index.js
+  var require_scheduler = __commonJS({
+    "node_modules/scheduler/index.js"(exports, module) {
+      "use strict";
+      if (false) {
+        module.exports = null;
+      } else {
+        module.exports = require_scheduler_development();
+      }
+    }
+  });
+
   // node_modules/react-dom/cjs/react-dom.development.js
   var require_react_dom_development = __commonJS({
     "node_modules/react-dom/cjs/react-dom.development.js"(exports) {
@@ -1298,7 +1298,7 @@
           return dispatcher;
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var React = require_react(), Internals = {
+        var React2 = require_react(), Internals = {
           d: {
             f: noop,
             r: function() {
@@ -1316,7 +1316,7 @@
           },
           p: 0,
           findDOMNode: null
-        }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+        }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React2.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
         "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
           "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
         );
@@ -2858,7 +2858,7 @@
           "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
         }
         function validateOptionProps(element, props) {
-          null == props.value && ("object" === typeof props.children && null !== props.children ? React.Children.forEach(props.children, function(child) {
+          null == props.value && ("object" === typeof props.children && null !== props.children ? React2.Children.forEach(props.children, function(child) {
             null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
               "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
             ));
@@ -16440,14 +16440,14 @@
           ));
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var Scheduler = require_scheduler(), React = require_react(), ReactDOM = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_PROVIDER_TYPE = Symbol.for("react.provider"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+        var Scheduler = require_scheduler(), React2 = require_react(), ReactDOM = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_PROVIDER_TYPE = Symbol.for("react.provider"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
         Symbol.for("react.scope");
         var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
         Symbol.for("react.legacy_hidden");
         Symbol.for("react.tracing_marker");
         var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
         Symbol.for("react.view_transition");
-        var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+        var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React2.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
           pending: false,
           data: null,
           method: null,
@@ -19161,7 +19161,7 @@
           }
         };
         (function() {
-          var isomorphicReactPackageVersion = React.version;
+          var isomorphicReactPackageVersion = React2.version;
           if ("19.1.0" !== isomorphicReactPackageVersion)
             throw Error(
               'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.1.0\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -19514,20 +19514,20 @@
         function validateChildKeys(node) {
           "object" === typeof node && null !== node && node.$$typeof === REACT_ELEMENT_TYPE && node._store && (node._store.validated = 1);
         }
-        var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler");
+        var React2 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler");
         Symbol.for("react.provider");
-        var REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+        var REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React2.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
           return null;
         };
-        React = {
+        React2 = {
           "react-stack-bottom-frame": function(callStackForError) {
             return callStackForError();
           }
         };
         var specialPropKeyWarningShown;
         var didWarnAboutElementRef = {};
-        var unknownOwnerDebugStack = React["react-stack-bottom-frame"].bind(
-          React,
+        var unknownOwnerDebugStack = React2["react-stack-bottom-frame"].bind(
+          React2,
           UnknownOwner
         )();
         var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -19575,26 +19575,576 @@
     }
   });
 
-  // app/javascript/mofmof.tsx
+  // app/javascript/homepage.tsx
+  var import_react = __toESM(require_react());
   var import_client = __toESM(require_client());
   var import_jsx_runtime = __toESM(require_jsx_runtime());
-  var Mofmof = () => {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: "\u958B\u767A" }) });
+  var HomePage = () => {
+    const [currentTriviaIndex, setCurrentTriviaIndex] = (0, import_react.useState)(0);
+    const [gameScore, setGameScore] = (0, import_react.useState)(0);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = (0, import_react.useState)(0);
+    const [selectedAnswer, setSelectedAnswer] = (0, import_react.useState)(null);
+    const [developerMode, setDeveloperMode] = (0, import_react.useState)({
+      focus: 78,
+      caffeine: 92,
+      codeMood: 65
+    });
+    const triviaList = [
+      'JavaScript\u306E\u914D\u5217\u306F\u5B9F\u306F\u30AA\u30D6\u30B8\u30A7\u30AF\u30C8\u3067\u3001typeof [] \u306F "object" \u3092\u8FD4\u3057\u307E\u3059\u3002',
+      "CSS\u306E\u300Ccascading\u300D\u306F\u300C\u6EDD\u306E\u3088\u3046\u306B\u6D41\u308C\u308B\u300D\u3068\u3044\u3046\u610F\u5473\u3067\u3001\u30B9\u30BF\u30A4\u30EB\u306E\u7D99\u627F\u3092\u8868\u73FE\u3057\u3066\u3044\u307E\u3059\u3002",
+      "HTTPS\u306E\u300CS\u300D\u306FSecure\u3067\u306F\u306A\u304F\u300CSecure Socket Layer\u300D\u306ESecure\u3067\u3059\u3002",
+      "GitHub\u306E\u300CHub\u300D\u306F\u8ECA\u8F2A\u306E\u30CF\u30D6\u304B\u3089\u6765\u3066\u304A\u308A\u3001\u958B\u767A\u306E\u4E2D\u5FC3\u5730\u3068\u3044\u3046\u610F\u5473\u304C\u3042\u308A\u307E\u3059\u3002",
+      "\u30D7\u30ED\u30B0\u30E9\u30DF\u30F3\u30B0\u8A00\u8A9E\u300CPython\u300D\u306F\u3001\u30B3\u30E1\u30C7\u30A3\u756A\u7D44\u300CMonty Python\u300D\u304B\u3089\u540D\u4ED8\u3051\u3089\u308C\u307E\u3057\u305F\u3002",
+      "\u4E16\u754C\u521D\u306E\u30D0\u30B0\uFF08Bug\uFF09\u306F\u5B9F\u969B\u306B\u866B\u3067\u30011947\u5E74\u306B\u30B3\u30F3\u30D4\u30E5\u30FC\u30BF\u30FC\u304B\u3089\u767A\u898B\u3055\u308C\u307E\u3057\u305F\u3002",
+      "\u300CHello, World!\u300D\u30D7\u30ED\u30B0\u30E9\u30E0\u306F1978\u5E74\u306E\u300CThe C Programming Language\u300D\u3067\u666E\u53CA\u3057\u307E\u3057\u305F\u3002",
+      "\u30A4\u30F3\u30BF\u30FC\u30CD\u30C3\u30C8\u306E\u6700\u521D\u306E\u30C9\u30E1\u30A4\u30F3\u540D\u306F\u300Csymbolics.com\u300D\u3067\u30011985\u5E74\u306B\u767B\u9332\u3055\u308C\u307E\u3057\u305F\u3002"
+    ];
+    const gameQuestions = [
+      {
+        question: "1 + 1 \u3092\u30D0\u30A4\u30CA\u30EA\u3067\u8868\u73FE\u3059\u308B\u3068\uFF1F",
+        options: ["01", "10", "11"],
+        correct: 1
+      },
+      {
+        question: "HTML\u3067\u6539\u884C\u3092\u8868\u3059\u30BF\u30B0\u306F\uFF1F",
+        options: ["<break>", "<br>", "<newline>"],
+        correct: 1
+      },
+      {
+        question: "CSS\u3067\u4E2D\u592E\u63C3\u3048\u306B\u4F7F\u3046\u30D7\u30ED\u30D1\u30C6\u30A3\u306F\uFF1F",
+        options: ["center", "text-align", "align"],
+        correct: 1
+      },
+      {
+        question: "JavaScript\u3067\u914D\u5217\u306E\u9577\u3055\u3092\u53D6\u5F97\u3059\u308B\u306B\u306F\uFF1F",
+        options: [".length", ".size", ".count"],
+        correct: 0
+      },
+      {
+        question: "HTTP\u30B9\u30C6\u30FC\u30BF\u30B9404\u306E\u610F\u5473\u306F\uFF1F",
+        options: ["\u30B5\u30FC\u30D0\u30FC\u30A8\u30E9\u30FC", "\u898B\u3064\u304B\u3089\u306A\u3044", "\u30A2\u30AF\u30BB\u30B9\u62D2\u5426"],
+        correct: 1
+      }
+    ];
+    const posts = [
+      {
+        title: "React Hooks\u3068State\u7BA1\u7406\u306E\u6DF1\u6398\u308A\u5B9F\u9A13",
+        date: "2025-05-30",
+        excerpt: "\u30AB\u30B9\u30BF\u30E0\u30D5\u30C3\u30AF\u3092\u4F7F\u3063\u305F\u72B6\u614B\u7BA1\u7406\u306E\u5B9F\u9A13\u7D50\u679C\u3002\u30D1\u30D5\u30A9\u30FC\u30DE\u30F3\u30B9\u6E2C\u5B9A\u3068\u30D9\u30F3\u30C1\u30DE\u30FC\u30AF\u3082\u542B\u3081\u3066\u8A73\u3057\u304F\u89E3\u8AAC\u3057\u307E\u3059\u3002",
+        tags: ["React", "Hooks", "Performance"]
+      },
+      {
+        title: "WebGL\u3067\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u7269\u7406\u30B7\u30DF\u30E5\u30EC\u30FC\u30B7\u30E7\u30F3",
+        date: "2025-05-28",
+        excerpt: "Three.js\u3068Cannon\u3092\u4F7F\u3063\u3066\u91CD\u529B\u30B7\u30DF\u30E5\u30EC\u30FC\u30B7\u30E7\u30F3\u3092\u5B9F\u88C5\u3002\u30D5\u30EC\u30FC\u30E0\u30EC\u30FC\u30C8\u6700\u9069\u5316\u306E\u6280\u6CD5\u3082\u7D39\u4ECB\u3057\u307E\u3059\u3002",
+        tags: ["WebGL", "Three.js", "Physics"]
+      },
+      {
+        title: "Rust\u3067\u4F5C\u308BWebAssembly\u30D1\u30D5\u30A9\u30FC\u30DE\u30F3\u30B9\u30C6\u30B9\u30C8",
+        date: "2025-05-25",
+        excerpt: "JavaScript\u3068WASM\u306E\u901F\u5EA6\u6BD4\u8F03\u5B9F\u9A13\u3002\u6570\u5024\u8A08\u7B97\u304B\u3089DOM\u64CD\u4F5C\u307E\u3067\u69D8\u3005\u306A\u30B1\u30FC\u30B9\u3067\u691C\u8A3C\u3057\u3066\u307F\u307E\u3057\u305F\u3002",
+        tags: ["Rust", "WebAssembly", "Benchmark"]
+      },
+      {
+        title: "\u6A5F\u68B0\u5B66\u7FD2\u30E2\u30C7\u30EB\u3092Web\u30D6\u30E9\u30A6\u30B6\u3067\u52D5\u304B\u3059",
+        date: "2025-05-22",
+        excerpt: "TensorFlow.js\u3092\u4F7F\u3063\u3066\u30D6\u30E9\u30A6\u30B6\u4E0A\u3067\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u753B\u50CF\u8A8D\u8B58\u3002\u30E2\u30C7\u30EB\u306E\u6700\u9069\u5316\u3068\u63A8\u8AD6\u901F\u5EA6\u306E\u5411\u4E0A\u306B\u3064\u3044\u3066\u3002",
+        tags: ["ML", "TensorFlow.js", "Computer Vision"]
+      }
+    ];
+    const projects = [
+      {
+        title: "Neural Network Visualizer",
+        date: "\u9032\u884C\u4E2D",
+        excerpt: "\u30CB\u30E5\u30FC\u30E9\u30EB\u30CD\u30C3\u30C8\u30EF\u30FC\u30AF\u306E\u5B66\u7FD2\u904E\u7A0B\u3092\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u3067\u53EF\u8996\u5316\u3059\u308B\u30C4\u30FC\u30EB\u3002\u91CD\u307F\u306E\u5909\u5316\u3084\u30D0\u30C3\u30AF\u30D7\u30ED\u30D1\u30B2\u30FC\u30B7\u30E7\u30F3\u3092\u8996\u899A\u7684\u306B\u7406\u89E3\u3067\u304D\u307E\u3059\u3002",
+        tags: ["ML", "Visualization", "D3.js"]
+      },
+      {
+        title: "Live Code Editor",
+        date: "2025-05",
+        excerpt: "Monaco Editor\u3068Web Workers\u3092\u4F7F\u3063\u305F\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u30B3\u30FC\u30C9\u5B9F\u884C\u74B0\u5883\u3002\u30B7\u30F3\u30BF\u30C3\u30AF\u30B9\u30CF\u30A4\u30E9\u30A4\u30C8\u3068\u81EA\u52D5\u88DC\u5B8C\u4ED8\u304D\u3002",
+        tags: ["Editor", "WebWorkers", "Monaco"]
+      },
+      {
+        title: "\u30BF\u30B9\u30AF\u7BA1\u7406\u30A2\u30D7\u30EA\u300CTaskFlow\u300D",
+        date: "2025-04",
+        excerpt: "React + TypeScript\u3067\u69CB\u7BC9\u3057\u305F\u30B7\u30F3\u30D7\u30EB\u306A\u30BF\u30B9\u30AF\u7BA1\u7406\u30C4\u30FC\u30EB\u3002\u30C9\u30E9\u30C3\u30B0&\u30C9\u30ED\u30C3\u30D7\u3067\u306E\u4E26\u3073\u66FF\u3048\u3084\u7DE0\u5207\u901A\u77E5\u6A5F\u80FD\u3092\u5B9F\u88C5\u3002",
+        tags: ["React", "TypeScript", "Firebase"]
+      },
+      {
+        title: "Algorithmic Art Generator",
+        date: "2025-03",
+        excerpt: "Canvas API\u3092\u4F7F\u3063\u305F\u751F\u6210\u30A2\u30FC\u30C8\u3002\u30D5\u30E9\u30AF\u30BF\u30EB\u3001\u30D1\u30FC\u30EA\u30F3\u30CE\u30A4\u30BA\u3001\u30BB\u30EB\u30E9\u30FC\u30AA\u30FC\u30C8\u30DE\u30C8\u30F3\u306A\u3069\u306E\u30A2\u30EB\u30B4\u30EA\u30BA\u30E0\u3092\u5B9F\u88C5\u3002",
+        tags: ["Canvas", "Art", "Algorithm"]
+      },
+      {
+        title: "\u30EC\u30B7\u30D4\u691C\u7D22API\u300CCookieAPI\u300D",
+        date: "2025-02",
+        excerpt: "Node.js + Express\u3067\u4F5C\u6210\u3057\u305F\u30EC\u30B7\u30D4\u691C\u7D22API\u3002\u6750\u6599\u304B\u3089\u30EC\u30B7\u30D4\u3092\u691C\u7D22\u3067\u304D\u308B\u6A5F\u80FD\u3092\u63D0\u4F9B\u3057\u3066\u3044\u307E\u3059\u3002",
+        tags: ["Node.js", "Express", "MongoDB"]
+      },
+      {
+        title: "\u5929\u6C17\u4E88\u5831\u30A6\u30A3\u30B8\u30A7\u30C3\u30C8",
+        date: "2025-01",
+        excerpt: "\u30D0\u30CB\u30E9JavaScript\u3067\u4F5C\u6210\u3057\u305F\u5929\u6C17\u4E88\u5831\u8868\u793A\u30A6\u30A3\u30B8\u30A7\u30C3\u30C8\u3002OpenWeather API\u3092\u4F7F\u7528\u3057\u3066\u30EA\u30A2\u30EB\u30BF\u30A4\u30E0\u60C5\u5831\u3092\u53D6\u5F97\u3002",
+        tags: ["JavaScript", "CSS", "API"]
+      }
+    ];
+    const techStack = [
+      { icon: "\u269B\uFE0F", name: "React", level: "\u2605\u2605\u2605" },
+      { icon: "\u{1F7E6}", name: "TypeScript", level: "\u2605\u2605\u2605" },
+      { icon: "\u{1F680}", name: "Next.js", level: "\u2605\u2605\u2606" },
+      { icon: "\u{1F980}", name: "Rust", level: "\u2605\u2606\u2606" },
+      { icon: "\u{1F40D}", name: "Python", level: "\u2605\u2605\u2606" },
+      { icon: "\u26A1", name: "WebGL", level: "\u2605\u2606\u2606" }
+    ];
+    const books = [
+      {
+        title: "\u300CClean Architecture\u300D",
+        rating: "\u2605\u2605\u2605\u2605\u2606",
+        note: "\u4F9D\u5B58\u95A2\u4FC2\u306E\u6574\u7406\u306B\u3064\u3044\u3066\u76EE\u304B\u3089\u9C57"
+      },
+      {
+        title: "\u300CRust in Action\u300D",
+        rating: "\u2605\u2605\u2605\u2606\u2606",
+        note: "\u6240\u6709\u6A29\u306E\u6982\u5FF5\u304C\u9762\u767D\u3044\u3002\u307E\u3060\u6D88\u5316\u4E2D"
+      }
+    ];
+    (0, import_react.useEffect)(() => {
+      const interval = setInterval(() => {
+        setDeveloperMode({
+          focus: Math.floor(Math.random() * 30 + 60),
+          caffeine: Math.floor(Math.random() * 30 + 70),
+          codeMood: Math.floor(Math.random() * 35 + 50)
+        });
+      }, 5e3);
+      return () => clearInterval(interval);
+    }, []);
+    const showNextTrivia = () => {
+      setCurrentTriviaIndex((prev) => (prev + 1) % triviaList.length);
+    };
+    const checkAnswer = (selectedIndex) => {
+      const isCorrect = selectedIndex === gameQuestions[currentQuestionIndex].correct;
+      setSelectedAnswer({ index: selectedIndex, isCorrect });
+      if (isCorrect) {
+        setGameScore((prev) => prev + 1);
+      }
+      setTimeout(() => {
+        setCurrentQuestionIndex((prev) => (prev + 1) % gameQuestions.length);
+        setSelectedAnswer(null);
+      }, 1500);
+    };
+    const createParticles = (element) => {
+      const rect = element.getBoundingClientRect();
+      for (let i = 0; i < 5; i++) {
+        const particle = document.createElement("div");
+        particle.style.cssText = `
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        background: #007bff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        left: ${rect.left + Math.random() * rect.width}px;
+        top: ${rect.top + Math.random() * rect.height}px;
+      `;
+        document.body.appendChild(particle);
+        particle.animate([
+          { transform: "translateY(0) scale(1)", opacity: 1 },
+          { transform: "translateY(-40px) scale(0)", opacity: 0 }
+        ], {
+          duration: 800,
+          easing: "ease-out"
+        }).onfinish = () => particle.remove();
+      }
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: `
+        @keyframes rainbow {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        
+        @keyframes underline {
+          to { width: 100%; }
+        }
+        
+        @keyframes typing {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+        
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+
+        .rainbow-bar {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #007bff, #28a745, #ffc107, #dc3545);
+          animation: rainbow 3s linear infinite;
+        }
+
+        .logo-underline {
+          position: absolute;
+          bottom: -5px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 3px;
+          background: #007bff;
+          animation: underline 2s ease-in-out forwards;
+        }
+
+        .typing-text {
+          overflow: hidden;
+          white-space: nowrap;
+          animation: typing 3s steps(40, end) forwards;
+          border-right: 2px solid #007bff;
+        }
+
+        .section-hover::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: #007bff;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+
+        .section-hover:hover::before {
+          transform: translateX(0);
+        }
+
+        .item-hover {
+          position: relative;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+
+        .item-hover::before {
+          content: '';
+          position: absolute;
+          left: -30px;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: transparent;
+          transition: background 0.3s ease;
+        }
+
+        .item-hover:hover {
+          background: #f8f9ff;
+          margin: 0 -20px;
+          padding: 20px;
+          border-radius: 8px;
+          transform: translateX(5px);
+        }
+
+        .item-hover:hover::before {
+          background: #007bff;
+        }
+
+        .blinking {
+          animation: blink 1s infinite;
+        }
+      ` }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", lineHeight: 1.6, color: "#333", background: "#f8f9fa", minHeight: "100vh" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "20px" }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", { style: {
+          textAlign: "center",
+          marginBottom: "50px",
+          padding: "60px 0",
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          border: "1px solid #eee",
+          position: "relative",
+          overflow: "hidden"
+        }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "rainbow-bar" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "2.5rem", fontWeight: 700, color: "#333", marginBottom: "15px", position: "relative", display: "inline-block" }, children: [
+            "Dev Portfolio",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "logo-underline" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "typing-text", style: { color: "#666", fontSize: "1.2rem", fontWeight: 400, marginBottom: "20px" }, children: "\u30D7\u30ED\u30B0\u30E9\u30DF\u30F3\u30B0\u3001\u5B9F\u9A13\u3001\u305D\u3057\u3066\u65B0\u3057\u3044\u767A\u898B\u306E\u8A18\u9332" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { style: { display: "flex", justifyContent: "center", gap: "30px", marginTop: "30px", paddingTop: "20px", borderTop: "1px solid #eee" }, children: ["\u30DB\u30FC\u30E0", "\u8A18\u4E8B", "\u30AC\u30E9\u30AF\u30BF\u7BB1", "\u7BA1\u7406"].map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#", style: {
+            color: index === 0 ? "#007bff" : "#666",
+            textDecoration: "none",
+            fontWeight: 500,
+            padding: "8px 16px",
+            borderRadius: "6px",
+            backgroundColor: index === 0 ? "#e3f2fd" : "transparent",
+            transition: "all 0.2s ease"
+          }, children: item }, index)) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: "40px", marginBottom: "40px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gap: "30px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-hover", style: {
+              background: "white",
+              borderRadius: "12px",
+              padding: "30px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              border: "1px solid #eee",
+              position: "relative",
+              overflow: "hidden",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease"
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", paddingBottom: "15px", borderBottom: "1px solid #f0f0f0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", { style: { fontSize: "1.4rem", fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: "10px" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#007bff", fontFamily: "'Courier New', monospace" }, children: "//" }),
+                  "\u6700\u65B0\u306E\u6295\u7A3F"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#", style: { color: "#007bff", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }, children: "\u3059\u3079\u3066\u898B\u308B \u2192" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { style: { listStyle: "none" }, children: posts.map((post, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "li",
+                {
+                  className: "item-hover",
+                  style: { padding: "20px 0", borderBottom: index < posts.length - 1 ? "1px solid #f5f5f5" : "none" },
+                  onClick: (e) => createParticles(e.currentTarget),
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", flex: 1, marginRight: "15px" }, children: post.title }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.85rem", color: "#999", whiteSpace: "nowrap", fontFamily: "'Courier New', monospace" }, children: post.date })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.95rem", color: "#666", lineHeight: 1.5, marginBottom: "12px" }, children: post.excerpt }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "8px" }, children: post.tags.map((tag, tagIndex) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+                      background: "#e9ecef",
+                      color: "#495057",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      fontSize: "0.75rem",
+                      border: "1px solid #dee2e6",
+                      fontFamily: "'Courier New', monospace"
+                    }, children: tag }, tagIndex)) })
+                  ]
+                },
+                index
+              )) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "section-hover", style: {
+              background: "white",
+              borderRadius: "12px",
+              padding: "30px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              border: "1px solid #eee",
+              position: "relative",
+              overflow: "hidden",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease"
+            }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", paddingBottom: "15px", borderBottom: "1px solid #f0f0f0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", { style: { fontSize: "1.4rem", fontWeight: 600, color: "#333", display: "flex", alignItems: "center", gap: "10px" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#007bff", fontFamily: "'Courier New', monospace" }, children: "//" }),
+                  "\u30AC\u30E9\u30AF\u30BF\u7BB1"
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#", style: { color: "#007bff", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500 }, children: "\u3059\u3079\u3066\u898B\u308B \u2192" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", { style: { listStyle: "none" }, children: projects.map((project, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                "li",
+                {
+                  className: "item-hover",
+                  style: { padding: "20px 0", borderBottom: index < projects.length - 1 ? "1px solid #f5f5f5" : "none" },
+                  onClick: (e) => createParticles(e.currentTarget),
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", flex: 1, marginRight: "15px" }, children: project.title }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.85rem", color: "#999", whiteSpace: "nowrap", fontFamily: "'Courier New', monospace" }, children: project.date })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.95rem", color: "#666", lineHeight: 1.5, marginBottom: "12px" }, children: project.excerpt }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: "8px" }, children: project.tags.map((tag, tagIndex) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+                      background: "#e9ecef",
+                      color: "#495057",
+                      padding: "4px 10px",
+                      borderRadius: "12px",
+                      fontSize: "0.75rem",
+                      border: "1px solid #dee2e6",
+                      fontFamily: "'Courier New', monospace"
+                    }, children: tag }, tagIndex)) })
+                  ]
+                },
+                index
+              )) })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { display: "grid", gap: "25px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F3AF} \u4ECA\u6708\u306E\u30C1\u30E3\u30EC\u30F3\u30B8" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.9rem", color: "#333", marginBottom: "8px", fontWeight: 500 }, children: "Rust \u3067Web\u30A2\u30D7\u30EA\u30B1\u30FC\u30B7\u30E7\u30F3\u69CB\u7BC9" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { background: "#e9ecef", height: "8px", borderRadius: "4px", overflow: "hidden", marginBottom: "5px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: "100%", background: "linear-gradient(90deg, #007bff, #0056b3)", width: "65%", transition: "width 0.3s ease" } }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#666", fontFamily: "'Courier New', monospace" }, children: "65% \u5B8C\u4E86 (13/20\u65E5)" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.9rem", color: "#333", marginBottom: "8px", fontWeight: 500 }, children: "\u6A5F\u68B0\u5B66\u7FD2\u30A2\u30EB\u30B4\u30EA\u30BA\u30E0\u7406\u89E3" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { background: "#e9ecef", height: "8px", borderRadius: "4px", overflow: "hidden", marginBottom: "5px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: "100%", background: "linear-gradient(90deg, #007bff, #0056b3)", width: "40%", transition: "width 0.3s ease" } }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#666", fontFamily: "'Courier New', monospace" }, children: "40% \u5B8C\u4E86 (8/20\u65E5)" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F527} \u6280\u8853\u30B9\u30BF\u30C3\u30AF" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: techStack.map((tech, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                textAlign: "center",
+                padding: "15px 8px",
+                background: "#f8f9fa",
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+                cursor: "pointer",
+                border: "1px solid #eee"
+              }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.5rem", marginBottom: "5px" }, children: tech.icon }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.75rem", fontWeight: 500 }, children: tech.name }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.7rem", color: "#ffc107", marginTop: "2px" }, children: tech.level })
+              ] }, index)) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4A1} \u30E9\u30F3\u30C0\u30E0\u8C46\u77E5\u8B58" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: {
+                  fontSize: "0.9rem",
+                  color: "#333",
+                  lineHeight: 1.5,
+                  marginBottom: "15px",
+                  padding: "15px",
+                  background: "#f8f9fa",
+                  borderRadius: "6px",
+                  borderLeft: "3px solid #007bff"
+                }, children: triviaList[currentTriviaIndex] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "button",
+                  {
+                    onClick: showNextTrivia,
+                    style: {
+                      background: "#007bff",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "0.8rem",
+                      transition: "background 0.2s ease"
+                    },
+                    children: "\u6B21\u306E\u8C46\u77E5\u8B58 \u{1F3B2}"
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4DA} \u8AAD\u66F8\u30E1\u30E2" }),
+              books.map((book, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                marginBottom: index < books.length - 1 ? "15px" : "0",
+                paddingBottom: index < books.length - 1 ? "15px" : "0",
+                borderBottom: index < books.length - 1 ? "1px solid #f0f0f0" : "none"
+              }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.9rem", color: "#333", fontWeight: 600, marginBottom: "5px" }, children: book.title }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#ffc107", marginBottom: "5px" }, children: book.rating }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#666", lineHeight: 1.4, fontStyle: "italic" }, children: book.note })
+              ] }, index))
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F3AE} \u30DF\u30CB\u30B2\u30FC\u30E0" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { fontSize: "0.9rem", color: "#333", marginBottom: "15px", fontWeight: 500 }, children: gameQuestions[currentQuestionIndex].question }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "flex", gap: "8px", justifyContent: "center", marginBottom: "15px" }, children: gameQuestions[currentQuestionIndex].options.map((option, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "button",
+                  {
+                    onClick: () => checkAnswer(index),
+                    disabled: selectedAnswer !== null,
+                    style: {
+                      background: selectedAnswer?.index === index ? selectedAnswer.isCorrect ? "#d4edda" : "#f8d7da" : "#f8f9fa",
+                      border: `1px solid ${selectedAnswer?.index === index ? selectedAnswer.isCorrect ? "#c3e6cb" : "#f5c6cb" : "#dee2e6"}`,
+                      color: selectedAnswer?.index === index ? selectedAnswer.isCorrect ? "#155724" : "#721c24" : "#333",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      cursor: selectedAnswer !== null ? "not-allowed" : "pointer",
+                      fontSize: "0.8rem",
+                      transition: "all 0.2s ease"
+                    },
+                    children: option
+                  },
+                  index
+                )) }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "0.8rem", color: "#666", fontFamily: "'Courier New', monospace" }, children: [
+                  "\u30B9\u30B3\u30A2: ",
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600 }, children: gameScore })
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "#f8f9fa", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee", borderLeft: "3px solid #28a745" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F321}\uFE0F \u958B\u767A\u8005\u30E2\u30FC\u30C9" }),
+              [
+                { label: "\u96C6\u4E2D\u5EA6", value: developerMode.focus, color: "linear-gradient(90deg, #007bff, #0056b3)" },
+                { label: "\u30AB\u30D5\u30A7\u30A4\u30F3", value: developerMode.caffeine, color: "linear-gradient(90deg, #dc3545, #c82333)" },
+                { label: "\u30B3\u30FC\u30C9\u306E\u8ABF\u5B50", value: developerMode.codeMood, color: "linear-gradient(90deg, #28a745, #1e7e34)" }
+              ].map((meter, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: index < 2 ? "15px" : "0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "0.8rem", color: "#666", marginBottom: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: meter.label }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "0.7rem", color: "#333", fontFamily: "'Courier New', monospace", textAlign: "right" }, children: [
+                    meter.value,
+                    "%"
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { background: "#e9ecef", height: "6px", borderRadius: "3px", overflow: "hidden", marginBottom: "3px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                  height: "100%",
+                  background: meter.color,
+                  width: `${meter.value}%`,
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease"
+                } }) })
+              ] }, index))
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { position: "fixed", bottom: "30px", right: "30px", display: "flex", flexDirection: "column", gap: "15px" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+            width: "56px",
+            height: "56px",
+            background: "#007bff",
+            border: "none",
+            borderRadius: "50%",
+            color: "white",
+            fontSize: "20px",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,123,255,0.3)",
+            transition: "all 0.3s ease"
+          }, children: "+" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { style: {
+            width: "56px",
+            height: "56px",
+            background: "#6c757d",
+            border: "none",
+            borderRadius: "50%",
+            color: "white",
+            fontSize: "16px",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(108,117,125,0.3)",
+            transition: "all 0.3s ease"
+          }, children: "\u2699" })
+        ] })
+      ] }) })
+    ] });
   };
-  var container = document.getElementById("mofmof");
+  var container = document.getElementById("homepage");
   if (container) {
     const root = (0, import_client.createRoot)(container);
     document.addEventListener("DOMContentLoaded", () => {
-      root.render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mofmof, {}));
+      root.render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(HomePage, {}));
     });
   }
 })();
 /*! Bundled license information:
 
-scheduler/cjs/scheduler.development.js:
+react/cjs/react.development.js:
   (**
    * @license React
-   * scheduler.development.js
+   * react.development.js
    *
    * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
@@ -19602,10 +20152,10 @@ scheduler/cjs/scheduler.development.js:
    * LICENSE file in the root directory of this source tree.
    *)
 
-react/cjs/react.development.js:
+scheduler/cjs/scheduler.development.js:
   (**
    * @license React
-   * react.development.js
+   * scheduler.development.js
    *
    * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
@@ -19646,4 +20196,4 @@ react/cjs/react-jsx-runtime.development.js:
    * LICENSE file in the root directory of this source tree.
    *)
 */
-//# sourceMappingURL=mofmof.js.map
+//# sourceMappingURL=homepage.js.map

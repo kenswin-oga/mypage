@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 export const Mofmof = () => {
   return (
     <>
-      <div>mofmof</div>
+      <div>開発</div>
     </>
   );
 };
