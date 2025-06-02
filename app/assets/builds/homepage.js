@@ -19989,22 +19989,6 @@
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F527} \u6280\u8853\u30B9\u30BF\u30C3\u30AF" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: techStack.map((tech, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-                textAlign: "center",
-                padding: "15px 8px",
-                background: "#f8f9fa",
-                borderRadius: "8px",
-                transition: "all 0.2s ease",
-                cursor: "pointer",
-                border: "1px solid #eee"
-              }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.5rem", marginBottom: "5px" }, children: tech.icon }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.75rem", fontWeight: 500 }, children: tech.name }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.7rem", color: "#ffc107", marginTop: "2px" }, children: tech.level })
-              ] }, index)) })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4A1} \u30E9\u30F3\u30C0\u30E0\u8C46\u77E5\u8B58" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: {
@@ -20037,18 +20021,6 @@
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4DA} \u8AAD\u66F8\u30E1\u30E2" }),
-              books.map((book, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
-                marginBottom: index < books.length - 1 ? "15px" : "0",
-                paddingBottom: index < books.length - 1 ? "15px" : "0",
-                borderBottom: index < books.length - 1 ? "1px solid #f0f0f0" : "none"
-              }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.9rem", color: "#333", fontWeight: 600, marginBottom: "5px" }, children: book.title }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#ffc107", marginBottom: "5px" }, children: book.rating }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#666", lineHeight: 1.4, fontStyle: "italic" }, children: book.note })
-              ] }, index))
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F3AE} \u30DF\u30CB\u30B2\u30FC\u30E0" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { fontSize: "0.9rem", color: "#333", marginBottom: "15px", fontWeight: 500 }, children: gameQuestions[currentQuestionIndex].question }),
@@ -20076,29 +20048,6 @@
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600 }, children: gameScore })
                 ] })
               ] })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "#f8f9fa", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee", borderLeft: "3px solid #28a745" }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F321}\uFE0F \u958B\u767A\u8005\u30E2\u30FC\u30C9" }),
-              [
-                { label: "\u96C6\u4E2D\u5EA6", value: developerMode.focus, color: "linear-gradient(90deg, #007bff, #0056b3)" },
-                { label: "\u30AB\u30D5\u30A7\u30A4\u30F3", value: developerMode.caffeine, color: "linear-gradient(90deg, #dc3545, #c82333)" },
-                { label: "\u30B3\u30FC\u30C9\u306E\u8ABF\u5B50", value: developerMode.codeMood, color: "linear-gradient(90deg, #28a745, #1e7e34)" }
-              ].map((meter, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: index < 2 ? "15px" : "0" }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "0.8rem", color: "#666", marginBottom: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: meter.label }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "0.7rem", color: "#333", fontFamily: "'Courier New', monospace", textAlign: "right" }, children: [
-                    meter.value,
-                    "%"
-                  ] })
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { background: "#e9ecef", height: "6px", borderRadius: "3px", overflow: "hidden", marginBottom: "3px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
-                  height: "100%",
-                  background: meter.color,
-                  width: `${meter.value}%`,
-                  borderRadius: "3px",
-                  transition: "width 0.3s ease"
-                } }) })
-              ] }, index))
             ] })
           ] })
         ] }),
