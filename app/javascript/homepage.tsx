@@ -312,15 +312,14 @@ export const HomePage = () => {
             position: 'relative', 
             overflow: 'hidden' 
           }}>
-            <div className="rainbow-bar"></div>
             
             <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#333', marginBottom: '15px', position: 'relative', display: 'inline-block' }}>
-              Dev Portfolio
+              つくったものログ
               <div className="logo-underline"></div>
             </div>
             
             <div className="typing-text" style={{ color: '#666', fontSize: '1.2rem', fontWeight: 400, marginBottom: '20px' }}>
-              プログラミング、実験、そして新しい発見の記録
+              日々の積み上げとアウトプットの記録用ページ
             </div>
 
             <nav style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #eee' }}>

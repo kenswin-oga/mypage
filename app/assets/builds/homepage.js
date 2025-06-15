@@ -19869,12 +19869,11 @@
           position: "relative",
           overflow: "hidden"
         }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "rainbow-bar" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "2.5rem", fontWeight: 700, color: "#333", marginBottom: "15px", position: "relative", display: "inline-block" }, children: [
-            "Dev Portfolio",
+            "\u3064\u304F\u3063\u305F\u3082\u306E\u30ED\u30B0",
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "logo-underline" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "typing-text", style: { color: "#666", fontSize: "1.2rem", fontWeight: 400, marginBottom: "20px" }, children: "\u30D7\u30ED\u30B0\u30E9\u30DF\u30F3\u30B0\u3001\u5B9F\u9A13\u3001\u305D\u3057\u3066\u65B0\u3057\u3044\u767A\u898B\u306E\u8A18\u9332" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "typing-text", style: { color: "#666", fontSize: "1.2rem", fontWeight: 400, marginBottom: "20px" }, children: "\u65E5\u3005\u306E\u7A4D\u307F\u4E0A\u3052\u3068\u30A2\u30A6\u30C8\u30D7\u30C3\u30C8\u306E\u8A18\u9332\u7528\u30DA\u30FC\u30B8" }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", { style: { display: "flex", justifyContent: "center", gap: "30px", marginTop: "30px", paddingTop: "20px", borderTop: "1px solid #eee" }, children: ["\u30DB\u30FC\u30E0", "\u8A18\u4E8B", "\u30AC\u30E9\u30AF\u30BF\u7BB1", "\u7BA1\u7406"].map((item, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", { href: "#", style: {
             color: index === 0 ? "#007bff" : "#666",
             textDecoration: "none",
@@ -19989,6 +19988,22 @@
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F527} \u6280\u8853\u30B9\u30BF\u30C3\u30AF" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }, children: techStack.map((tech, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                textAlign: "center",
+                padding: "15px 8px",
+                background: "#f8f9fa",
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+                cursor: "pointer",
+                border: "1px solid #eee"
+              }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.5rem", marginBottom: "5px" }, children: tech.icon }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.75rem", fontWeight: 500 }, children: tech.name }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.7rem", color: "#ffc107", marginTop: "2px" }, children: tech.level })
+              ] }, index)) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4A1} \u30E9\u30F3\u30C0\u30E0\u8C46\u77E5\u8B58" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: {
@@ -20021,6 +20036,18 @@
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F4DA} \u8AAD\u66F8\u30E1\u30E2" }),
+              books.map((book, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: {
+                marginBottom: index < books.length - 1 ? "15px" : "0",
+                paddingBottom: index < books.length - 1 ? "15px" : "0",
+                borderBottom: index < books.length - 1 ? "1px solid #f0f0f0" : "none"
+              }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.9rem", color: "#333", fontWeight: 600, marginBottom: "5px" }, children: book.title }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#ffc107", marginBottom: "5px" }, children: book.rating }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "0.8rem", color: "#666", lineHeight: 1.4, fontStyle: "italic" }, children: book.note })
+              ] }, index))
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "white", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee" }, children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F3AE} \u30DF\u30CB\u30B2\u30FC\u30E0" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { textAlign: "center" }, children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { fontSize: "0.9rem", color: "#333", marginBottom: "15px", fontWeight: 500 }, children: gameQuestions[currentQuestionIndex].question }),
@@ -20048,6 +20075,29 @@
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontWeight: 600 }, children: gameScore })
                 ] })
               ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { background: "#f8f9fa", borderRadius: "8px", padding: "25px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", border: "1px solid #eee", borderLeft: "3px solid #28a745" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontSize: "1.1rem", fontWeight: 600, color: "#333", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }, children: "\u{1F321}\uFE0F \u958B\u767A\u8005\u30E2\u30FC\u30C9" }),
+              [
+                { label: "\u96C6\u4E2D\u5EA6", value: developerMode.focus, color: "linear-gradient(90deg, #007bff, #0056b3)" },
+                { label: "\u30AB\u30D5\u30A7\u30A4\u30F3", value: developerMode.caffeine, color: "linear-gradient(90deg, #dc3545, #c82333)" },
+                { label: "\u30B3\u30FC\u30C9\u306E\u8ABF\u5B50", value: developerMode.codeMood, color: "linear-gradient(90deg, #28a745, #1e7e34)" }
+              ].map((meter, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginBottom: index < 2 ? "15px" : "0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "0.8rem", color: "#666", marginBottom: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: meter.label }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: "0.7rem", color: "#333", fontFamily: "'Courier New', monospace", textAlign: "right" }, children: [
+                    meter.value,
+                    "%"
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { background: "#e9ecef", height: "6px", borderRadius: "3px", overflow: "hidden", marginBottom: "3px" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {
+                  height: "100%",
+                  background: meter.color,
+                  width: `${meter.value}%`,
+                  borderRadius: "3px",
+                  transition: "width 0.3s ease"
+                } }) })
+              ] }, index))
             ] })
           ] })
         ] }),
